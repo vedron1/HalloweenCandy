@@ -12,7 +12,7 @@ public class Main {
     
             long tempExec = 0;
     
-            Neighbourhood[] trees = new Neighbourhood[5];
+            Vizinhanca[] trees = new Vizinhanca[5];
             for (int i = 0; i < 5; i++) {
                 for (; ; ) {
                     try {                        
@@ -22,7 +22,7 @@ public class Main {
                             throw new Exception();
                         if (line.length() == 0)
                             throw new Exception();
-                        trees[i] = new Neighbourhood(line);
+                        trees[i] = new Vizinhanca(line);
                         tempExec += System.currentTimeMillis() - startLoad;
                         break;
                     } catch (Exception e) {
@@ -38,7 +38,7 @@ public class Main {
             }
             System.out.println("\nTempo de execução: " + ((System.currentTimeMillis() - start) + tempExec) + "ms");
         }catch(Exception e){
-
+            e.printStackTrace();
         }
     }
 }
