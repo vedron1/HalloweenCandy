@@ -13,8 +13,9 @@ public class Main {
             long tempExec = 0;
     
             Vizinhanca[] trees = new Vizinhanca[5];
+            Vizinhanca tree = new Vizinhanca();
             for (int i = 0; i < 5; i++) {
-                for (; ; ) {
+                for (;;) {
                     try {                        
                         String line = scanner.nextLine();
                         long startLoad = System.currentTimeMillis();
@@ -22,7 +23,8 @@ public class Main {
                             throw new Exception();
                         if (line.length() == 0)
                             throw new Exception();
-                        trees[i] = new Vizinhanca(line);
+
+                        tree.resolucao(line);
                         tempExec += System.currentTimeMillis() - startLoad;
                         break;
                     } catch (Exception e) {
@@ -33,9 +35,9 @@ public class Main {
             scanner.close();
             fileInputStream.close(); 
             long start = System.currentTimeMillis();
-            for (int i = 0; i < 5; i++) {
-                System.out.println((i + 1) + "°Árvore" + ": Quantidade de ruas: " + trees[i].qtdRuas() + ", Quantidade de Doces: " + trees[i].qtdDoces());
-            }
+            // for (int i = 0; i < 5; i++) {
+            //     System.out.println((i + 1) + "°Árvore" + ": Quantidade de ruas: " + tree.qtdRuas() + ", Quantidade de Doces: " + trees[i].qtdDoces());
+            // }
             System.out.println("\nTempo de execução: " + ((System.currentTimeMillis() - start) + tempExec) + "ms");
         }catch(Exception e){
             e.printStackTrace();

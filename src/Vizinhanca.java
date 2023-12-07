@@ -1,98 +1,101 @@
 package src;
-import java.util.Stack;
 
-public class Vizinhanca {
-  private class NodeParent<X> {
-    private Object left;
-    private Object right;
-    private NodeParent<X> parent;
+public class Vizinhanca {  
+  private class Node{
+    private Node left, right;
+    private int qtdCandy;    
     
-    
-    public NodeParent() {
-      this(null, null, null);
-    }
-  
-    public NodeParent(Object right, Object left) {
-      this(null, right, left);
-    }
-    
-    public NodeParent(NodeParent<X> parent, Object left, Object right) {
+    public Node(Node left, int qtdCandy, Node right) {
       this.left = left;
+      this.qtdCandy = qtdCandy;
       this.right = right;
-      this.parent = parent;
-    }
-    
-    public NodeParent<X> getParent() { return this.parent; }
-    public void setParent(NodeParent<X> parent) { this.parent = parent; }
-    
-    
-    public Object getLeft() { return this.left; }
-    public void setLeft(X left) { this.left = left; }
-    public void setLeft(NodeParent<X> left) { this.left = left; }
-    
-    public Object getRight() { return this.right; }
-    public void setRight(X right) { this.right = right; }
-    public void setRight(NodeParent<X> right) { this.right = right; }
-  }
-  
-  private Object raiz;
-  
-  public Vizinhanca(String input) {
-    this.raiz = null;
-    this.leitura(input);
-  }
-
-  private void leitura(String input) {
-    try {
-      Stack<Object> pilha = new Stack<>();
-      int i = 0;
-
-      while (i < input.length()) {
-          char currentChar = input.charAt(i);
-          if (Character.isDigit(currentChar)) {
-              StringBuilder number = new StringBuilder();
-              while (i < input.length() && Character.isDigit(input.charAt(i))) {
-                  number.append(input.charAt(i));
-                  i++;
-              }
-              Integer leaf = Integer.parseInt(number.toString());
-              pilha.push(leaf);
-          } else if (currentChar == '(') {
-              i++;
-          } else if (currentChar == ')') {
-              Object right = pilha.pop();
-              Object left = pilha.pop();
-              NodeParent<Integer> parent = new NodeParent<>(left, right);
-              pilha.push(parent);
-              i++;
-          } else {
-              i++;
-          }
-        }
-      if (!pilha.isEmpty()) {
-          this.raiz = pilha.pop();
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Árvore inválida", e);
     }
   }
+  private Node raiz;
+  private int index;
+  private String line;
+  
+  public void resolucao(String input) {
+    this.index = 0;
+    this.line = input;
+    this.raiz = leitura();
+    int candy = qtdDoces();
+    int ruas = qtdRuas();
+    System.out.println(ruas + " " + candy);
+  }
 
+  // private void leitura(String input) {
+  //   try {
+  //     Stack<Node> pilha = new Stack<Node>();
+  //     int i = 0;
+
+  //     while (i < input.length()) {
+  //         char currentChar = input.charAt(i);
+  //         if (Character.isDigit(currentChar)) {
+  //             StringBuilder number = new StringBuilder();
+  //             while (i < input.length() && Character.isDigit(input.charAt(i))) {
+  //                 number.append(input.charAt(i));
+  //                 i++;
+  //             }
+  //             Node leaf = new Node(null, Integer.parseInt(number.toString()), null);
+  //             pilha.push(leaf);
+  //         } else if (currentChar == '(') {
+  //             i++;
+  //         } else if (currentChar == ')') {
+  //             Node right = pilha.pop();
+  //             Node left = pilha.pop();
+  //             Node parent = new Node(left,0, right);
+  //             pilha.push(parent);
+  //             i++;
+  //         } else {
+  //             i++;
+  //         }
+  //       }
+  //     if (!pilha.isEmpty()) {
+  //         this.raiz = pilha.pop();
+  //     }
+  //   } catch (Exception e) {
+  //     throw new RuntimeException("Árvore inválida", e);
+  //   }
+  // }
+  private Node leitura() {
+    if (index >= line.length())
+        throw new IllegalArgumentException("The index cannot be greater than or equal to the length of the line.");
+
+    while (line.charAt(index) == ' ')
+        index++;
+
+    if (line.charAt(index) == '(') {
+        index++;
+        Node left = leitura();
+        Node right = leitura();
+        index++;
+        return new Node(left, 0, right);
+    } else {
+        int start = index;
+        while (index < line.length() && Character.isDigit(line.charAt(index)))
+            index++;
+        int end = index;
+        return new Node(null,Integer.parseInt(line.substring(start, end)), null);
+    }
+}
   public int qtdRuas() {
-    if (raiz instanceof Integer) return 0;
-    NodeParent<?> node = (NodeParent<?>) raiz;
+    Node node = (Node) this.raiz;
+    if (node == null) return 0;
 
-    if(tamanho(node.getLeft()) < tamanho(node.getRight()))
-      return somaRuas(node.getLeft(), true) + somaRuas(node.getRight(), false);
+    if(tamanho(node.left) < tamanho(node.right))
+      return somaRuas(node.left, true) + somaRuas(node.right, false);
     else
-      return somaRuas(node.getLeft(), false) + somaRuas(node.getRight(), true);  
+      return somaRuas(node.left, false) + somaRuas(node.right, true);  
   }
 
-  private int somaRuas(Object current, boolean isMin) {
-    if (current instanceof Integer)
+  private int somaRuas(Node current, boolean isMin) {
+    if (current == null) return 0;
+
+    if(current.qtdCandy != 0) {
       if(isMin) return 2;
       else return 1;
-
-    NodeParent<?> node = (NodeParent<?>) current;
+    }
 
     int count = 0;
 
@@ -102,31 +105,33 @@ public class Vizinhanca {
       count += 1;
 
     if (isMin)
-      return count + somaRuas(node.getLeft(), true) + somaRuas(node.getRight(), true);
-    else if(tamanho(node.getLeft()) < tamanho(node.getRight()))
-      return count + somaRuas(node.getLeft(), true) + somaRuas(node.getRight(), false);
+      return count + somaRuas(current.left, true) + somaRuas(current.right, true);
+    else if(tamanho(current.left) < tamanho(current.right))
+      return count + somaRuas(current.left, true) + somaRuas(current.right, false);
     else
-      return count + somaRuas(node.getLeft(), false) + somaRuas(node.getRight(), true);
+      return count + somaRuas(current.left, false) + somaRuas(current.right, true);
   }
 
   public int qtdDoces() {
-    if(raiz == null) return 0;
-    return somaDoces(raiz);
+    if(this.raiz == null) return 0;
+    return somaDoces(this.raiz);
   }
 
-  private int somaDoces(Object current) {
-    if(current instanceof Integer) return (Integer) current;
-    return somaDoces(((NodeParent<?>) current).getLeft()) + somaDoces(((NodeParent<?>) current).getRight());
+  private int somaDoces(Node current) {
+    if(current.qtdCandy != 0) return current.qtdCandy;
+    return somaDoces(((Node) current).left) + somaDoces(((Node) current).right);
   }
 
   public int tamanho() {
-    if(raiz == null) return 0;
-    return tamanho(raiz);
+    if(this.raiz == null) return 0;
+    return tamanho(this.raiz);
   }
 
-  private int tamanho(Object current) {
-      if(current instanceof Integer) return 0;
+  private int tamanho(Node current) {
 
-      return 1 + tamanho(((NodeParent<?>) current).getLeft()) + tamanho(((NodeParent<?>) current).getRight());
+      if(current == null) return 0;
+      // if(current.qtdCandy != 0) return 0;
+
+      return 1 + tamanho(((Node) current).left) + tamanho(((Node) current).right);
   }
 }
